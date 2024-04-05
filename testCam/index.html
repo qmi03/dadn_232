@@ -1,14 +1,6 @@
-<!-- Client side (HTML + Socket.io Client) -->
 <!DOCTYPE html>
 <html>
 <body>
-    <img id="image" />
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        socket.on('image', (image) => {
-            document.getElementById('image').src = 'data:image/jpeg;base64,' + image;
-        });
-    </script>
+  <img id="webcam" src="http://192.168.1.9:8080/video" />
 </body>
 </html>

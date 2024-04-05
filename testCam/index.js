@@ -1,26 +1,26 @@
-// Server side (Node.js + Express + Socket.io + OpenCV)
-const cv = require('opencv4nodejs');
 const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
-
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+const axios = require('axios');
 
-const FPS = 10;
-const wCap = new cv.VideoCapture('http://your_ip_webcam_stream_link');
-
+// Serve your webpage
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+  res.sendFile(__dirname + '/index.html');
 });
 
-setInterval(() => {
-    const frame = wCap.read();
-    const image = cv.imencode('.jpg', frame).toString('base64');
-    io.emit('image', image);
-}, 1000 / FPS);
+io.on('connection', (socket) => {
+  // Replace with your stream URL
+  const streamUrl = 'http://192.168.1.9:8080/video';
 
-server.listen(3000, () => {
-    console.log('listening on *:3000');
+  axios.get(streamUrl, { responseType: 'stream' })
+    .then(response => {
+      response.data.on('data', (chunk) => {
+        // Broadcast the image to all connected clients
+        socket.broadcast.emit('stream', chunk);
+      });
+    })
+    .catch(err => console.error(err));
 });
+
+server.listen(3000);
